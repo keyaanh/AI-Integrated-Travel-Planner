@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Search Flights</h2>
+    <form method="POST" action="{{ url_for('search_flights') }}">
+        <div>
+            <label for="origin">Origin:</label>
+            <input type="text" name="origin" id="origin" required>
+        </div>
+        <div>
+            <label for="destination">Destination:</label>
+            <input type="text" name="destination" id="destination" required>
+        </div>
+        <div>
+            <label for="departure_date">Departure Date:</label>
+            <input type="date" name="departure_date" id="departure_date" required>
+        </div>
+        <div>
+            <label for="return_date">Return Date:</label>
+            <input type="date" name="return_date" id="return_date" required>
+        </div>
+        <div>
+            <button type="submit">Search</button>
+        </div>
+    </form>
+    {% if flights %}
+        <h3>Flight Results (Page {{ page }})</h3>
+        <ul>
+            {% for flight in flights %}
+                <li>
+                    <p><strong>Flight ID:</strong> {{ flight['id'] }}</p>
+                    <p><strong>Price:</strong> {{ flight['price']['currency'] }} {{ flight['price']['total'] }}</p>
+                    <p><strong>Number of Bookable Seats:</strong> {{ flight['numberOfBookableSeats'] }}</p>
+                    <p><strong>Itineraries:</strong></p>
+                    <ul>
+                        {% for itinerary in flight['itineraries'] %}
+                            <li>
+                                <p><strong>Duration:</strong> {{ itinerary['duration'] }}</p>
+                                <p><strong>Segments:</strong></p>
+                                <ul>
+                                    {% for segment in itinerary['segments'] %}
+                                        <li>
+                                            <p><strong>Departure:</strong> {{ segment['departure']['iataCode'] }} at {{ segment['departure']['time'] }}</p>
+                                            <p><strong>Arrival:</strong> {{ segment['arrival']['iataCode'] }} at {{ segment['arrival']['time'] }}</p>
+                                            <p><strong>Carrier Code:</strong> {{ segment['carrierCode'] }}</p>
+                                            <p><strong>Flight Number:</strong> {{ segment['number'] }}</p>
+                                            <p><strong>Aircraft:</strong> {{ segment['aircraft']['code'] }}</p>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+        <div>
+            {% if page > 1 %}
+                <a href="{{ url_for('search_flights', page=page-1) }}">Previous</a>
+            {% endif %}
+            {% if page * per_page < total_flights %}
+                <a href="{{ url_for('search_flights', page=page+1) }}">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
